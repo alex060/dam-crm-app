@@ -68,3 +68,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Documentation and scratch scripts
+capturas/
+*.py
+generate_lab_deliverable.js

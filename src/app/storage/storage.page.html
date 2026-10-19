@@ -1,0 +1,98 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="Volver al CRM"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Supabase Storage Bucket</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="tertiary" class="bucket-badge">
+        <ion-icon name="folder-outline"></ion-icon>
+        {{ bucketName }}
+      </ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding storage-content">
+  <div class="storage-container">
+
+    <!-- CABECERA DE SECCIÓN -->
+    <div class="section-banner">
+      <div class="banner-icon-box">
+        <ion-icon name="image-outline"></ion-icon>
+      </div>
+      <div class="banner-info">
+        <h2>Galería de Archivos de Storage</h2>
+        <p>
+          Imágenes servidas desde el Storage Bucket de Supabase. Cada tarjeta muestra el nombre del archivo, tamaño y fecha de creación con acceso a la URL pública.
+        </p>
+      </div>
+      <ion-button fill="outline" color="primary" size="small" (click)="loadImages()" class="refresh-btn">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Actualizar
+      </ion-button>
+    </div>
+
+    <!-- SPINNER DE CARGA -->
+    @if (isLoading()) {
+      <div class="loading-state">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Consultando objetos en el Bucket de Supabase...</p>
+      </div>
+    } @else {
+      <!-- GRID DE CARDS -->
+      <ion-grid class="cards-grid">
+        <ion-row>
+          @for (img of images(); track img.name) {
+            <ion-col size="12" size-md="6" size-lg="6" class="col-card">
+              <ion-card class="image-card">
+                <div class="image-wrapper" (click)="openImage(img.url)">
+                  <img [src]="img.url" [alt]="img.name" loading="lazy" />
+                  <div class="image-overlay">
+                    <ion-button fill="clear" color="light" size="small">
+                      <ion-icon slot="start" name="eye-outline"></ion-icon>
+                      Ver en alta resolución
+                    </ion-button>
+                  </div>
+                </div>
+
+                <ion-card-header>
+                  <div class="card-meta-row">
+                    <ion-badge color="secondary" class="pill-badge">
+                      <ion-icon name="document-outline"></ion-icon>
+                      {{ img.sizeFormatted || 'PNG' }}
+                    </ion-badge>
+                    @if (img.created_at) {
+                      <span class="date-tag">
+                        <ion-icon name="time-outline"></ion-icon>
+                        {{ img.created_at | date:'dd/MM/yyyy HH:mm' }}
+                      </span>
+                    }
+                  </div>
+                  <ion-card-title class="card-file-name">{{ img.name }}</ion-card-title>
+                  <ion-card-subtitle>{{ img.description }}</ion-card-subtitle>
+                </ion-card-header>
+
+                <ion-card-content class="card-footer-content">
+                  <ion-button expand="block" fill="outline" color="primary" size="small" (click)="openImage(img.url)">
+                    <ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+                    Abrir URL Pública
+                  </ion-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          } @empty {
+            <ion-col size="12">
+              <div class="empty-state">
+                <ion-icon name="folder-outline"></ion-icon>
+                <h3>No hay imágenes en este bucket</h3>
+                <p>Sube imágenes a tu bucket '{{ bucketName }}' en el panel de Supabase Storage.</p>
+              </div>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    }
+
+  </div>
+</ion-content>

@@ -1,18 +1,46 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-title>DAM CRM - Gestión de Clientes</ion-title>
+
     <ion-buttons slot="end">
-      <ion-badge [color]="isAdmin() === 'admin' ? 'success' : 'warning'" class="role-badge">
-        <ion-icon [name]="isAdmin() === 'admin' ? 'shield-checkmark-outline' : 'person-outline'"></ion-icon>
-        {{ isAdmin() === 'admin' ? 'ROL: ADMIN' : 'ROL: USUARIO' }}
-      </ion-badge>
+      <!-- Enlace a la nueva página de Storage Bucket -->
+      <ion-button routerLink="/storage" fill="outline" color="light" class="nav-storage-btn">
+        <ion-icon slot="start" name="images-outline"></ion-icon>
+        <ion-label class="ion-hide-sm-down">Storage Bucket</ion-label>
+      </ion-button>
+
+      <!-- Estado de Autenticación / Login -->
+      @if (currentUser()) {
+        <ion-badge [color]="isAdmin() === 'admin' ? 'success' : 'warning'" class="role-badge">
+          <ion-icon [name]="isAdmin() === 'admin' ? 'shield-checkmark-outline' : 'person-outline'"></ion-icon>
+          {{ isAdmin() === 'admin' ? 'ADMIN' : 'USUARIO' }}
+        </ion-badge>
+        <ion-button fill="clear" color="light" (click)="logout()" title="Cerrar sesión">
+          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+        </ion-button>
+      } @else {
+        <ion-button fill="solid" color="warning" (click)="openLoginModal('iniciar sesión')" class="login-header-btn">
+          <ion-icon slot="start" name="log-in-outline"></ion-icon>
+          Iniciar Sesión
+        </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 
   <!-- Barra de control rápido de rol para evaluación docente -->
   <ion-toolbar color="light" class="role-switcher-bar">
     <div class="role-switcher-container">
-      <span class="role-switcher-label">Simular Rol (RBAC / RLS):</span>
+      <div class="user-status-text">
+        <ion-icon [name]="currentUser() ? 'person-outline' : 'lock-closed-outline'"></ion-icon>
+        <span>
+          @if (currentUser()) {
+            Conectado: <strong>{{ currentUser()?.email }}</strong> (Rol: {{ (isAdmin() || 'user') | uppercase }})
+          } @else {
+            <span class="unauth-text">No autenticado (Se solicitará login al insertar o editar)</span>
+          }
+        </span>
+      </div>
+
       <ion-segment [value]="isAdmin() || 'admin'" (ionChange)="onRoleChange($event)" class="role-segment">
         <ion-segment-button value="admin">
           <ion-icon name="shield-checkmark-outline"></ion-icon>
@@ -20,7 +48,7 @@
         </ion-segment-button>
         <ion-segment-button value="user">
           <ion-icon name="person-outline"></ion-icon>
-          <ion-label>Usuario (Solo Lectura)</ion-label>
+          <ion-label>Usuario (Lectura)</ion-label>
         </ion-segment-button>
       </ion-segment>
     </div>
@@ -30,8 +58,22 @@
 <ion-content class="ion-padding crm-content">
   <div class="container-wrapper">
 
-    <!-- MENSAJE INFORMATIVO DE SEGURIDAD / RBAC -->
-    @if (isAdmin() === 'user') {
+    <!-- AVISO DE AUTENTICACIÓN / RBAC -->
+    @if (!currentUser()) {
+      <div class="security-banner unauth-banner">
+        <ion-icon name="lock-closed-outline" class="banner-icon"></ion-icon>
+        <div class="banner-text">
+          <strong>Autenticación Requerida para Operaciones CUD</strong>
+          <p>
+            Puedes consultar los registros existentes en modo lectura. Cuando intentes <strong>insertar, actualizar o eliminar</strong> clientes, la aplicación te solicitará login con tu usuario de Supabase.
+          </p>
+          <ion-button size="small" fill="solid" color="primary" (click)="openLoginModal('insertar o gestionar clientes')" class="ion-margin-top">
+            <ion-icon slot="start" name="log-in-outline"></ion-icon>
+            Identificarse con Supabase
+          </ion-button>
+        </div>
+      </div>
+    } @else if (isAdmin() === 'user') {
       <div class="security-banner user-banner">
         <ion-icon name="information-circle-outline" class="banner-icon"></ion-icon>
         <div class="banner-text">
@@ -140,10 +182,16 @@
         <h3>Listado de Clientes</h3>
         <ion-badge color="primary">{{ clients().length }}</ion-badge>
       </div>
-      <ion-button size="small" fill="outline" (click)="loadClients()">
-        <ion-icon slot="start" name="refresh-outline"></ion-icon>
-        Recargar
-      </ion-button>
+      <div class="header-action-buttons">
+        <ion-button size="small" fill="outline" color="secondary" routerLink="/storage">
+          <ion-icon slot="start" name="images-outline"></ion-icon>
+          Ver Storage
+        </ion-button>
+        <ion-button size="small" fill="outline" (click)="loadClients()">
+          <ion-icon slot="start" name="refresh-outline"></ion-icon>
+          Recargar
+        </ion-button>
+      </div>
     </div>
 
     @if (isAdmin() === 'admin') {
@@ -168,13 +216,13 @@
               </p>
             </ion-label>
 
-            <!-- Acciones directas también visibles en escritorio si es admin -->
+            <!-- Acciones directas visibles para admins -->
             @if (isAdmin() === 'admin') {
               <div class="desktop-actions" slot="end">
-                <ion-button fill="clear" color="primary" size="small" (click)="editClient(client); slidingItem.close()">
+                <ion-button fill="clear" color="primary" size="small" (click)="editClient(client); slidingItem.close()" title="Editar">
                   <ion-icon slot="icon-only" name="create-outline"></ion-icon>
                 </ion-button>
-                <ion-button fill="clear" color="danger" size="small" (click)="deleteClient(client.id!); slidingItem.close()">
+                <ion-button fill="clear" color="danger" size="small" (click)="deleteClient(client.id!); slidingItem.close()" title="Eliminar">
                   <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                 </ion-button>
               </div>
@@ -201,6 +249,86 @@
     </ion-list>
 
   </div>
+
+  <!-- ================= MODAL DE LOGIN (SOLICITADO POR REQUERIMIENTO) ================= -->
+  <ion-modal [isOpen]="isLoginModalOpen" (didDismiss)="closeLoginModal()" class="login-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Acceso Seguro Supabase</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeLoginModal()">
+              <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding modal-login-content">
+        <div class="login-card-wrapper">
+          <div class="login-header-icon">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <h3>Inicio de Sesión Requerido</h3>
+          <p class="login-reason-text">
+            Para poder <strong>{{ loginReason }}</strong> debes autenticarte con un usuario registrado en Supabase Auth y validado en la tabla <code>profiles</code> (políticas RLS).
+          </p>
+
+          @if (loginError) {
+            <div class="login-error-box">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <span>{{ loginError }}</span>
+            </div>
+          }
+
+          <div class="login-form-box">
+            <ion-item class="modal-input-item" lines="none">
+              <ion-label position="stacked">Correo electrónico</ion-label>
+              <ion-input
+                type="email"
+                [(ngModel)]="loginEmail"
+                placeholder="usuario@dominio.com">
+              </ion-input>
+            </ion-item>
+
+            <ion-item class="modal-input-item" lines="none">
+              <ion-label position="stacked">Contraseña</ion-label>
+              <ion-input
+                type="password"
+                [(ngModel)]="loginPassword"
+                placeholder="Introduce tu contraseña">
+              </ion-input>
+            </ion-item>
+
+            <ion-button expand="block" (click)="executeLogin()" [disabled]="isLoggingIn" class="btn-submit-login">
+              @if (isLoggingIn) {
+                <ion-spinner name="crescent" slot="start"></ion-spinner>
+                Validando...
+              } @else {
+                <ion-icon slot="start" name="log-in-outline"></ion-icon>
+                Iniciar Sesión en Supabase
+              }
+            </ion-button>
+          </div>
+
+          <div class="quick-test-section">
+            <span class="quick-label">Botones de prueba rápida (Evaluación):</span>
+            <div class="quick-btn-row">
+              <ion-button size="small" fill="outline" color="success" (click)="quickLogin('admin')">
+                <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+                Entrar como Admin
+              </ion-button>
+              <ion-button size="small" fill="outline" color="warning" (click)="quickLogin('user')">
+                <ion-icon slot="start" name="person-outline"></ion-icon>
+                Entrar como Usuario
+              </ion-button>
+            </div>
+          </div>
+
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
   <ion-toast
     [isOpen]="isToastOpen"

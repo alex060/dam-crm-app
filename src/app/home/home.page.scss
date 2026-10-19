@@ -15,6 +15,19 @@
   }
 }
 
+.nav-storage-btn {
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-right: 8px;
+}
+
+.login-header-btn {
+  font-weight: 700;
+  font-size: 0.82rem;
+  --border-radius: 18px;
+  margin-right: 8px;
+}
+
 .role-switcher-bar {
   --background: #f1f5f9;
   border-bottom: 1px solid #e2e8f0;
@@ -30,14 +43,26 @@
     gap: 16px;
     flex-wrap: wrap;
 
-    .role-switcher-label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #475569;
+    .user-status-text {
+      font-size: 0.82rem;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      ion-icon {
+        font-size: 1rem;
+        color: #2563eb;
+      }
+
+      .unauth-text {
+        color: #d97706;
+        font-weight: 600;
+      }
     }
 
     .role-segment {
-      max-width: 380px;
+      max-width: 320px;
       --background: #e2e8f0;
 
       ion-segment-button {
@@ -46,8 +71,8 @@
         --color: #64748b;
         --color-checked: #0f172a;
         font-weight: 600;
-        font-size: 0.82rem;
-        min-height: 36px;
+        font-size: 0.8rem;
+        min-height: 34px;
 
         ion-icon {
           margin-right: 4px;
@@ -119,6 +144,16 @@
 
     .banner-icon {
       color: #d97706;
+    }
+  }
+
+  &.unauth-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+
+    .banner-icon {
+      color: #dc2626;
     }
   }
 }
@@ -208,6 +243,8 @@
   align-items: center;
   justify-content: space-between;
   margin: 16px 0 8px 0;
+  flex-wrap: wrap;
+  gap: 10px;
 
   .title-with-count {
     display: flex;
@@ -226,6 +263,11 @@
       border-radius: 12px;
       padding: 4px 8px;
     }
+  }
+
+  .header-action-buttons {
+    display: flex;
+    gap: 8px;
   }
 }
 
@@ -323,5 +365,135 @@
     text-align: center;
     border: 1px dashed #cbd5e1;
     margin-top: 10px;
+  }
+}
+
+/* ================= MODAL LOGIN ================= */
+.login-modal {
+  --max-width: 460px;
+  --border-radius: 16px;
+}
+
+.modal-login-content {
+  --background: #ffffff;
+
+  .login-card-wrapper {
+    text-align: center;
+    padding: 10px 4px;
+
+    .login-header-icon {
+      width: 56px;
+      height: 56px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #2563eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 12px auto;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+    }
+
+    .login-reason-text {
+      font-size: 0.86rem;
+      color: #64748b;
+      margin: 0 0 16px 0;
+      line-height: 1.45;
+
+      code {
+        background: #f1f5f9;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #1e293b;
+        font-weight: 700;
+      }
+    }
+
+    .login-error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      text-align: left;
+
+      ion-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+    }
+
+    .login-form-box {
+      text-align: left;
+
+      .modal-input-item {
+        --background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        --padding-start: 12px;
+        --padding-end: 12px;
+
+        ion-label {
+          font-weight: 600;
+          font-size: 0.82rem;
+          color: #475569;
+          margin-bottom: 4px;
+        }
+
+        ion-input {
+          --padding-top: 4px;
+          --padding-bottom: 6px;
+          font-size: 0.92rem;
+        }
+      }
+
+      .btn-submit-login {
+        --border-radius: 10px;
+        margin-top: 14px;
+        font-weight: 700;
+        min-height: 44px;
+      }
+    }
+
+    .quick-test-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed #e2e8f0;
+
+      .quick-label {
+        display: block;
+        font-size: 0.78rem;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .quick-btn-row {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        ion-button {
+          font-size: 0.78rem;
+          font-weight: 600;
+        }
+      }
+    }
   }
 }

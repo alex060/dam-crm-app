@@ -138,7 +138,7 @@
     <div class="list-section-header">
       <div class="title-with-count">
         <h3>Listado de Clientes</h3>
-        <ion-badge color="primary">{{ clients.length }}</ion-badge>
+        <ion-badge color="primary">{{ clients().length }}</ion-badge>
       </div>
       <ion-button size="small" fill="outline" (click)="loadClients()">
         <ion-icon slot="start" name="refresh-outline"></ion-icon>
@@ -154,7 +154,7 @@
     }
 
     <ion-list class="clients-list">
-      @for (client of clients; track client.id) {
+      @for (client of clients(); track client.id) {
         <ion-item-sliding #slidingItem>
           <ion-item class="client-item" lines="inset">
             <div class="client-avatar" slot="start">

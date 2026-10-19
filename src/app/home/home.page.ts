@@ -60,7 +60,7 @@ export class HomePage implements OnInit {
   private supabaseService = inject(SupabaseService);
   private fb = inject(FormBuilder);
 
-  clients: Client[] = [];
+  clients = this.supabaseService.clients;
   clientForm: FormGroup;
   editingClientId: string | null = null;
   toastMessage = '';
@@ -98,7 +98,7 @@ export class HomePage implements OnInit {
 
   async loadClients() {
     try {
-      this.clients = await this.supabaseService.getClients();
+      await this.supabaseService.getClients();
     } catch (e: any) {
       this.showToast('Error cargando clientes: ' + e.message);
     }
